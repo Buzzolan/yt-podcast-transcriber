@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.mp3
+*.mp4
+*.webm
+*.wav
+*.srt
+*.txt
+
+# VS Code
+.vscode/
+.history/
