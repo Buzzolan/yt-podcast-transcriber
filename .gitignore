@@ -5,7 +5,7 @@ __pycache__/
 *.webm
 *.wav
 *.srt
-*.txt
+*pt.txt
 
 # VS Code
 .vscode/
