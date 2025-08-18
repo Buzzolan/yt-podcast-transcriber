@@ -61,10 +61,3 @@ python main.py
 MIT License © 2025 Buzzolan
 
 ```
-
----
-
-This clearly informs users **not to commit FFmpeg binaries** and explains how to set up FFmpeg locally.  
-
-If you want, I can also **update `.gitignore` and suggest a cleaned-up repo structure** so it’s ready to push to GitHub without hitting large file issues.
-```
