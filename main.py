@@ -4,9 +4,9 @@ import whisper
 import re
 
 # ---- CONFIG ----
-URL = "https://www.youtube.com/watch?v=i2zPYPjL-xA&list=PLlcZfiOunO5Eo5RmzzrlEgqEJbmg8cez0&index=5"  # replace with your podcast URL
-OUTPUT_AUDIO = "podcast.mp3"
-OUTPUT_TRANSCRIPT = "transcript.txt"
+URL = "https://www.youtube.com/watch?v=KAwCm-d7980&t=6s"  # replace with your podcast URL
+OUTPUT_AUDIO = "03_10-Nel_fango_del_dio_AI.mp3"
+OUTPUT_TRANSCRIPT = "03_10-Nel_fango_del_dio_AI_transcript.txt"
 MODEL = "small"  # tiny, base, small, medium, large
 
 def format_transcript(text, max_words_per_line=14):
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     transcript_text = result["text"]  # Whisper output
     formatted_text = format_transcript(transcript_text)
 
-    with open("transcript.txt", "w", encoding="utf-8") as f:
+    with open(OUTPUT_TRANSCRIPT, "w", encoding="utf-8") as f:
         f.write(formatted_text)
     
     print("[INFO] Transcript saved in readable format as transcript.txt")
