@@ -17,14 +17,24 @@
    <widget class="QPushButton" name="runButton">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>630</x>
       <y>40</y>
-      <width>75</width>
+      <width>91</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
      <string>transcribe</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="loadurl">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>40</y>
+      <width>551</width>
+      <height>22</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -37,6 +47,12 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuyt_transcriber">
+    <property name="title">
+     <string>yt-transcriber</string>
+    </property>
+   </widget>
+   <addaction name="menuyt_transcriber"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

@@ -2,6 +2,7 @@ import os
 import yt_dlp
 import whisper
 import re
+import sys
 
 # ---- CONFIG ----
 URL = "https://www.youtube.com/watch?v=KAwCm-d7980&t=6s"  # replace with your podcast URL
@@ -53,7 +54,8 @@ def transcribe_audio(audio_file, model_name, transcript_file):
 if __name__ == "__main__":
     ffmpeg_path = os.path.join(os.getcwd(), "ffmpeg", "bin")
     os.environ["PATH"] += os.pathsep + ffmpeg_path
-    download_audio(URL, OUTPUT_AUDIO)
+    url = sys.argv[1]
+    download_audio(url, OUTPUT_AUDIO)
     result = transcribe_audio(OUTPUT_AUDIO, MODEL, OUTPUT_TRANSCRIPT)
     
     # Process the transcription result
