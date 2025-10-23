@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import yt_dlp
 import whisper
@@ -5,10 +6,11 @@ import re
 import sys
 
 # ---- CONFIG ----
-URL = "https://www.youtube.com/watch?v=KAwCm-d7980&t=6s"  # replace with your podcast URL
-OUTPUT_AUDIO = "03_10-Nel_fango_del_dio_AI.mp3"
-OUTPUT_TRANSCRIPT = "03_10-Nel_fango_del_dio_AI_transcript.txt"
-MODEL = "small"  # tiny, base, small, medium, large
+MODEL = "small"  # tiny, base, small, medum, large
+
+def sanitize_filename(name):
+    """Clean video title for safe filenames."""
+    return re.sub(r"[\\/*?:<>'|]", "_", name).strip()
 
 def format_transcript(text, max_words_per_line=14):
     """
@@ -30,6 +32,13 @@ def format_transcript(text, max_words_per_line=14):
 
     return "\n".join(formatted_lines)
 
+def get_video_title(url):
+    """Fetch video title without downloading."""
+    ydl_opts = {'quiet': True, 'skip_download': True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return info.get("title", "untitled")
+
 def download_audio(url, output_file):
     """Download best audio using yt-dlp"""
     print("[INFO] Downloading audio...")
@@ -37,12 +46,13 @@ def download_audio(url, output_file):
         'format': 'bestaudio/best',
         'outtmpl': output_file,
         'noplaylist': True,  # Download only the single video, not the playlist
+        'extractor_args': {'youtube': {'player_client': ['android']}}
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
     print("[INFO] Audio downloaded:", output_file)
 
-def transcribe_audio(audio_file, model_name, transcript_file):
+def transcribe_audio(audio_file, model_name):
     """Transcribe audio with Whisper"""
     print("[INFO] Loading Whisper model:", model_name)
     model = whisper.load_model(model_name)
@@ -52,17 +62,33 @@ def transcribe_audio(audio_file, model_name, transcript_file):
     return  result  # Return the result for further processing
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python script.py <YouTube_URL>")
+        sys.exit(1)
+
+    url = sys.argv[1]
+
+    # ensure ffmpeg is in PATH
     ffmpeg_path = os.path.join(os.getcwd(), "ffmpeg", "bin")
     os.environ["PATH"] += os.pathsep + ffmpeg_path
-    url = sys.argv[1]
-    download_audio(url, OUTPUT_AUDIO)
-    result = transcribe_audio(OUTPUT_AUDIO, MODEL, OUTPUT_TRANSCRIPT)
+
+    # Prepare filenames
+    today = datetime.now().strftime("%m-%d")
+    title = get_video_title(url)
+    safe_title = sanitize_filename(title)
+    output_audio = f"{today}_{safe_title}.mp3"
+    output_transcript = f"{today}_{safe_title}.txt"
+
+    # Download audio and transcribe
+    download_audio(url, output_audio)
+    result = transcribe_audio(output_audio, MODEL)
     
     # Process the transcription result
     transcript_text = result["text"]  # Whisper output
     formatted_text = format_transcript(transcript_text)
 
-    with open(OUTPUT_TRANSCRIPT, "w", encoding="utf-8") as f:
+    with open(output_transcript, "w", encoding="utf-8") as f:
         f.write(formatted_text)
     
-    print("[INFO] Transcript saved in readable format as transcript.txt")
+    print(f"[INFO] Transcript saved as: {output_transcript}")
+    print(f"[INFO] Audio saved as: {output_audio}")
