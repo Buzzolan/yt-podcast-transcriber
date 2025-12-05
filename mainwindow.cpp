@@ -12,6 +12,6 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::on_runButton_clicked() {
 
-  QString text = ui->loadUrl->text();
-  QProcess::execute("python", QStringList() << "yt-transcriber.py" << url);
+  QString text = ui->loadurl->text();
+  QProcess::execute("python", QStringList() << "yt-transcriber.py" << text);
 }
