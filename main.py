@@ -1,66 +1,24 @@
-import os
-import yt_dlp
-import whisper
-import re
+from PySide6.QtWidgets import QApplication
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile
+from yt_transcriber import start_transcription
+from PySide6.QtWidgets import QLineEdit, QPushButton
+def on_transcribe_clicked():
+    url = window.findChild(QLineEdit, "input_url").text()
+    start_transcription(url)
 
-# ---- CONFIG ----
-URL = "https://www.youtube.com/watch?v=KAwCm-d7980&t=6s"  # replace with your podcast URL
-OUTPUT_AUDIO = "03_10-Nel_fango_del_dio_AI.mp3"
-OUTPUT_TRANSCRIPT = "03_10-Nel_fango_del_dio_AI_transcript.txt"
-MODEL = "small"  # tiny, base, small, medium, large
+app = QApplication([])
 
-def format_transcript(text, max_words_per_line=14):
-    """
-    Format transcript in readable paragraphs.
-    - Breaks text into sentences using punctuation.
-    - Limits number of words per line for readability.
-    """
-    # Step 1: Split into sentences (punto, esclamativo, interrogativo)
-    sentences = re.split(r'(?<=[.!?])\s+', text)
+loader = QUiLoader()
+file = QFile("main_window.ui")
+file.open(QFile.ReadOnly)
 
-    # Step 2: Break each sentence into lines of max_words_per_line
-    formatted_lines = []
-    for sentence in sentences:
-        words = sentence.split()
-        for i in range(0, len(words), max_words_per_line):
-            line = " ".join(words[i:i+max_words_per_line])
-            formatted_lines.append(line)
-        formatted_lines.append("")  # empty line between sentences/paragraphs
+window = loader.load(file)
+file.close()
 
-    return "\n".join(formatted_lines)
+# connect button click
+button = window.findChild(QPushButton, "transcribe")
+button.clicked.connect(on_transcribe_clicked)
 
-def download_audio(url, output_file):
-    """Download best audio using yt-dlp"""
-    print("[INFO] Downloading audio...")
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': output_file,
-        'noplaylist': True,  # Download only the single video, not the playlist
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
-    print("[INFO] Audio downloaded:", output_file)
-
-def transcribe_audio(audio_file, model_name, transcript_file):
-    """Transcribe audio with Whisper"""
-    print("[INFO] Loading Whisper model:", model_name)
-    model = whisper.load_model(model_name)
-    print("[INFO] Transcribing...")
-    result = model.transcribe(audio_file)
-    
-    return  result  # Return the result for further processing
-
-if __name__ == "__main__":
-    ffmpeg_path = os.path.join(os.getcwd(), "ffmpeg", "bin")
-    os.environ["PATH"] += os.pathsep + ffmpeg_path
-    download_audio(URL, OUTPUT_AUDIO)
-    result = transcribe_audio(OUTPUT_AUDIO, MODEL, OUTPUT_TRANSCRIPT)
-    
-    # Process the transcription result
-    transcript_text = result["text"]  # Whisper output
-    formatted_text = format_transcript(transcript_text)
-
-    with open(OUTPUT_TRANSCRIPT, "w", encoding="utf-8") as f:
-        f.write(formatted_text)
-    
-    print("[INFO] Transcript saved in readable format as transcript.txt")
+window.show()
+app.exec()
